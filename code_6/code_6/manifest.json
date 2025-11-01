@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "MemoryPal3",
+  "version": "1.0.0",
+  "description": "Semantic memory system for web browsing - visualize and interact with your browser memory",
+  "permissions": ["activeTab", "storage", "tabs", "sidePanel", "history", "scripting", "ai"],
+  "host_permissions": ["<all_urls>"],
+  "action": {
+    "default_sidepanel": "sidebar.html",
+    "default_icon": {
+      "16": "icons/icon-16.jpg",
+      "48": "icons/icon-48.jpg",
+      "128": "icons/icon-128.jpg"
+    }
+  },
+  "side_panel": {
+    "default_path": "sidebar.html"
+  },
+  "icons": {
+    "16": "icons/icon-16.jpg",
+    "48": "icons/icon-48.jpg",
+    "128": "icons/icon-128.jpg"
+  },
+  "background": {
+    "service_worker": "background.js"
+  }
+}

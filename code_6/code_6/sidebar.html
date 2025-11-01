@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MemoryPal - Memory Panel</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="sidebar-styles.css" rel="stylesheet">
+</head>
+<body>
+  <div class="sidebar-container">
+    <!-- Updated header with new memory web logo and settings button -->
+    <div class="sidebar-header">
+      <div class="d-flex align-items-center gap-2">
+        <div class="logo-icon">
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Memory web/neural network design -->
+            <circle cx="16" cy="16" r="3" fill="url(#gradient1)" class="pulse-node"/>
+            <circle cx="8" cy="8" r="2.5" fill="url(#gradient1)" class="pulse-node" style="animation-delay: 0.2s"/>
+            <circle cx="24" cy="8" r="2.5" fill="url(#gradient1)" class="pulse-node" style="animation-delay: 0.4s"/>
+            <circle cx="8" cy="24" r="2.5" fill="url(#gradient1)" class="pulse-node" style="animation-delay: 0.6s"/>
+            <circle cx="24" cy="24" r="2.5" fill="url(#gradient1)" class="pulse-node" style="animation-delay: 0.8s"/>
+            <circle cx="16" cy="4" r="2" fill="url(#gradient1)" class="pulse-node" style="animation-delay: 1s"/>
+            <circle cx="28" cy="16" r="2" fill="url(#gradient1)" class="pulse-node" style="animation-delay: 1.2s"/>
+            <circle cx="16" cy="28" r="2" fill="url(#gradient1)" class="pulse-node" style="animation-delay: 1.4s"/>
+            <circle cx="4" cy="16" r="2" fill="url(#gradient1)" class="pulse-node" style="animation-delay: 1.6s"/>
+            
+            <!-- Connections with animated flow -->
+            <line x1="16" y1="16" x2="8" y2="8" stroke="url(#gradient1)" stroke-width="1.5" opacity="0.6" class="connection-line"/>
+            <line x1="16" y1="16" x2="24" y2="8" stroke="url(#gradient1)" stroke-width="1.5" opacity="0.6" class="connection-line"/>
+            <line x1="16" y1="16" x2="8" y2="24" stroke="url(#gradient1)" stroke-width="1.5" opacity="0.6" class="connection-line"/>
+            <line x1="16" y1="16" x2="24" y2="24" stroke="url(#gradient1)" stroke-width="1.5" opacity="0.6" class="connection-line"/>
+            <line x1="16" y1="16" x2="16" y2="4" stroke="url(#gradient1)" stroke-width="1.5" opacity="0.6" class="connection-line"/>
+            <line x1="16" y1="16" x2="28" y2="16" stroke="url(#gradient1)" stroke-width="1.5" opacity="0.6" class="connection-line"/>
+            <line x1="16" y1="16" x2="16" y2="28" stroke="url(#gradient1)" stroke-width="1.5" opacity="0.6" class="connection-line"/>
+            <line x1="16" y1="16" x2="4" y2="16" stroke="url(#gradient1)" stroke-width="1.5" opacity="0.6" class="connection-line"/>
+            
+            <!-- Twinkling stars -->
+            <circle cx="6" cy="6" r="1" fill="white" class="twinkle-star" style="animation-delay: 0s"/>
+            <circle cx="26" cy="6" r="1" fill="white" class="twinkle-star" style="animation-delay: 0.7s"/>
+            <circle cx="6" cy="26" r="1" fill="white" class="twinkle-star" style="animation-delay: 1.4s"/>
+            <circle cx="26" cy="26" r="1" fill="white" class="twinkle-star" style="animation-delay: 2.1s"/>
+            
+            <defs>
+              <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#0ea5e9;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#06b6d4;stop-opacity:1" />
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <h1 class="logo-text mb-0">MemoryPal</h1>
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <button class="btn-graph-icon" id="editCurrentPageBtn" title="Add Notes to Current Page (Cmd+N)">
+          <i class="bi bi-pencil-square"></i>
+        </button>
+        <button class="btn-graph-icon" id="openGraphBtn" title="Knowledge Graph (Cmd+G)">
+          <i class="bi bi-diagram-3"></i>
+        </button>
+        <button class="btn-graph-icon" id="settingsBtn" title="Settings">
+          <i class="bi bi-gear"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Main view with search, related pages, and similarity threshold -->
+    <div class="main-view" id="mainView">
+      <!-- Enhanced search bar with natural language support -->
+      <div class="search-section">
+        <div class="search-wrapper">
+          <i class="bi bi-search search-icon"></i>
+          <input type="text" class="search-input" id="searchInput" placeholder="Search your memory... (⌘K)">
+          <div class="search-shortcuts">
+            <kbd>⌘</kbd>
+            <kbd>K</kbd>
+          </div>
+        </div>
+        <div class="search-suggestions" id="searchSuggestions" style="display: none;">
+          <div class="suggestion-item">Try: "show me what I learned about React hooks"</div>
+          <div class="suggestion-item">Try: "pages I visited about AI last week"</div>
+        </div>
+      </div>
+
+      <!-- Content Area -->
+      <div class="content-area">
+        <!-- Fixed height related pages card showing max 3 pages with scrollbar -->
+        <div class="section-card">
+          <div class="section-header">
+            <h2 class="section-title mb-0">Related Pages</h2>
+            <div class="d-flex align-items-center gap-2">
+              <button class="btn-surprise" id="surpriseBtn" title="Surprise Me - Discover unexpected connections">
+                <i class="bi bi-stars me-1"></i>
+                <span>Surprise Me</span>
+              </button>
+              <span class="page-counter" id="pageCounter">5 of 8</span>
+            </div>
+          </div>
+          <div class="related-pages-list-scrollable" id="relatedPagesList">
+            <!-- Related pages will be dynamically inserted here -->
+          </div>
+        </div>
+
+        <!-- Similarity Threshold -->
+        <div class="section-card">
+          <div class="section-header">
+            <div class="d-flex align-items-center gap-2">
+              <h2 class="section-title mb-0">Similarity Threshold</h2>
+              <div class="info-icon" id="infoIcon">
+                <i class="bi bi-info-circle"></i>
+              </div>
+            </div>
+            <span class="threshold-value" id="thresholdValue">0.67</span>
+          </div>
+          <div class="slider-container">
+            <input type="range" class="form-range custom-range" id="similaritySlider" 
+                   min="0" max="100" value="67" step="1">
+          </div>
+          <p class="threshold-description">
+            Adjust to filter related pages by semantic similarity. Higher values show only closely related content.
+          </p>
+        </div>
+
+        <!-- Status Footer -->
+        <div class="status-footer">
+          <div class="status-item">
+            <span class="status-dot status-indexed"></span>
+            <span class="status-text" id="pagesIndexedText">0 pages indexed</span>
+          </div>
+          <div class="status-item">
+            <span class="status-dot status-active"></span>
+            <span class="status-text">Active</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Detail view shown when clicking a related page -->
+    <div class="detail-view" id="detailView" style="display: none;">
+      <button class="btn-back" id="backBtn">
+        <i class="bi bi-arrow-left me-2"></i>
+        Back to Related Pages
+      </button>
+
+      <div class="detail-content">
+        <div class="detail-card">
+          <h1 class="detail-title" id="detailTitle">Reinforcement Learning Basics</h1>
+          
+          <div class="detail-badges">
+            <div class="similarity-badge-large">
+              <i class="bi bi-graph-up me-2"></i>
+              <span id="detailSimilarity">89%</span> Similar
+            </div>
+            <div class="visit-date">
+              <i class="bi bi-calendar3 me-2"></i>
+              Visited <span id="detailDate">Jan 14, 2024</span>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <h3 class="detail-section-title">Summary</h3>
+            <p class="detail-summary" id="detailSummary">
+              A comprehensive introduction to reinforcement learning covering key concepts like agents, environments, 
+              rewards, and the exploration-exploitation tradeoff. This article provides a solid foundation for understanding 
+              more advanced RL techniques.
+            </p>
+          </div>
+
+          <div class="detail-section">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+              <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-journal-text text-primary"></i>
+                <h3 class="detail-section-title mb-0">Your Notes</h3>
+              </div>
+              <button class="btn-add-note" id="addNoteBtn">
+                <i class="bi bi-pencil me-2"></i>
+                Add
+              </button>
+            </div>
+            <div class="notes-placeholder" id="notesPlaceholder">
+              <p class="text-secondary mb-0">No notes yet. Click "Add" to create your first note.</p>
+            </div>
+            <div class="notes-editor" id="notesEditor" style="display: none;">
+              <textarea class="notes-textarea" id="notesTextarea" placeholder="Write your notes here..."></textarea>
+              <div class="notes-actions">
+                <button class="btn btn-sm btn-outline-secondary" id="cancelNoteBtn">Cancel</button>
+                <button class="btn btn-sm btn-primary" id="saveNoteBtn">Save Note</button>
+              </div>
+            </div>
+            <div class="notes-list" id="notesList">
+              <!-- Saved notes will appear here -->
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <h3 class="detail-section-title">Quick Actions</h3>
+            <div class="quick-actions">
+              <button class="action-btn" id="visitPageBtn">
+                <i class="bi bi-box-arrow-up-right"></i>
+                <span>Visit Page</span>
+              </button>
+              <button class="action-btn" id="exportNotesBtn">
+                <i class="bi bi-share"></i>
+                <span>Export Notes</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Knowledge graph modal overlay -->
+    <div class="graph-modal" id="graphModal" style="display: none;">
+      <button class="btn-close-graph" id="closeGraphBtn">
+        <i class="bi bi-x-lg"></i>
+      </button>
+      <div class="graph-content">
+        <h2 class="graph-title">Knowledge Graph</h2>
+        <div id="graphContainer" class="graph-container"></div>
+      </div>
+    </div>
+
+    <!-- Current page notes modal -->
+    <div class="notes-modal" id="currentPageNotesModal" style="display: none;">
+      <div class="notes-modal-content">
+        <div class="notes-modal-header">
+          <h3 class="notes-modal-title">Notes for Current Page</h3>
+          <button class="btn-close-modal" id="closeNotesModalBtn">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </div>
+        <div class="notes-modal-body">
+          <div class="current-page-info" id="currentPageInfo">
+            <h4 class="current-page-title">Current Page Title</h4>
+            <p class="current-page-url">https://example.com/current-page</p>
+          </div>
+          <div class="notes-editor-modal">
+            <textarea class="notes-textarea" id="currentPageNotesTextarea" placeholder="Write your notes for this page..."></textarea>
+          </div>
+          <div class="notes-list" id="currentPageNotesList">
+            <!-- Existing notes for current page will appear here -->
+          </div>
+        </div>
+        <div class="notes-modal-footer">
+          <button class="btn btn-sm btn-outline-secondary" id="cancelCurrentNoteBtn">Cancel</button>
+          <button class="btn btn-sm btn-primary" id="saveCurrentNoteBtn">Save Note</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- New settings modal for customization -->
+    <div class="notes-modal" id="settingsModal" style="display: none;">
+      <div class="notes-modal-content settings-modal-content">
+        <div class="notes-modal-header">
+          <h3 class="notes-modal-title">Settings</h3>
+          <button class="btn-close-modal" id="closeSettingsBtn">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </div>
+        <div class="notes-modal-body">
+          <div class="settings-section">
+            <h4 class="settings-section-title">Theme Accent Color</h4>
+            <div class="theme-picker">
+              <button class="theme-color-btn active" data-color="blue" style="background: #0ea5e9;" title="Electric Blue"></button>
+              <button class="theme-color-btn" data-color="purple" style="background: #a855f7;" title="Purple"></button>
+              <button class="theme-color-btn" data-color="green" style="background: #10b981;" title="Green"></button>
+              <button class="theme-color-btn" data-color="orange" style="background: #f97316;" title="Orange"></button>
+              <button class="theme-color-btn" data-color="pink" style="background: #ec4899;" title="Pink"></button>
+            </div>
+          </div>
+          <div class="settings-section">
+            <h4 class="settings-section-title">Display Density</h4>
+            <div class="density-options">
+              <button class="density-btn" data-density="compact">
+                <i class="bi bi-layout-text-sidebar-reverse"></i>
+                <span>Compact</span>
+              </button>
+              <button class="density-btn active" data-density="comfortable">
+                <i class="bi bi-layout-text-window"></i>
+                <span>Comfortable</span>
+              </button>
+            </div>
+          </div>
+          <div class="settings-section">
+            <h4 class="settings-section-title">Features</h4>
+            <div class="feature-toggles">
+              <div class="feature-toggle-item">
+                <div>
+                  <div class="feature-toggle-label">Show Similarity Bars</div>
+                  <div class="feature-toggle-desc">Display visual similarity indicators</div>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="toggleSimilarityBars" checked>
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+              <div class="feature-toggle-item">
+                <div>
+                  <div class="feature-toggle-label">Keyboard Shortcuts</div>
+                  <div class="feature-toggle-desc">Enable keyboard navigation</div>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="toggleKeyboardShortcuts" checked>
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+              <div class="feature-toggle-item">
+                <div>
+                  <div class="feature-toggle-label">Search Suggestions</div>
+                  <div class="feature-toggle-desc">Show natural language examples</div>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="toggleSearchSuggestions" checked>
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- New serendipity/discovery modal -->
+    <div class="notes-modal" id="serendipityModal" style="display: none;">
+      <div class="notes-modal-content">
+        <div class="notes-modal-header">
+          <h3 class="notes-modal-title">
+            <i class="bi bi-stars me-2"></i>
+            Unexpected Connections
+          </h3>
+          <button class="btn-close-modal" id="closeSerendipityBtn">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </div>
+        <div class="notes-modal-body">
+          <div class="serendipity-content" id="serendipityContent">
+            <!-- Discovery content will be inserted here -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty state for first-time users -->
+    <div class="empty-state-overlay" id="emptyStateOverlay" style="display: none;">
+      <div class="empty-state-content">
+        <div class="empty-state-animation">
+          <svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="60" cy="60" r="40" stroke="url(#emptyGradient)" stroke-width="2" fill="none" class="empty-circle"/>
+            <circle cx="60" cy="60" r="8" fill="url(#emptyGradient)" class="empty-center"/>
+            <circle cx="40" cy="40" r="6" fill="url(#emptyGradient)" class="empty-node" style="animation-delay: 0.2s"/>
+            <circle cx="80" cy="40" r="6" fill="url(#emptyGradient)" class="empty-node" style="animation-delay: 0.4s"/>
+            <circle cx="40" cy="80" r="6" fill="url(#emptyGradient)" class="empty-node" style="animation-delay: 0.6s"/>
+            <circle cx="80" cy="80" r="6" fill="url(#emptyGradient)" class="empty-node" style="animation-delay: 0.8s"/>
+            <defs>
+              <linearGradient id="emptyGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#0ea5e9;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#06b6d4;stop-opacity:1" />
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <h2 class="empty-state-title">Start Building Your Memory Web</h2>
+        <p class="empty-state-description">
+          Browse more pages to build connections and discover patterns in your knowledge. 
+          MemoryPal will automatically find related content and help you remember what you've learned.
+        </p>
+        <div class="empty-state-tips">
+          <div class="tip-item">
+            <i class="bi bi-lightbulb"></i>
+            <span>Visit pages on topics you're interested in</span>
+          </div>
+          <div class="tip-item">
+            <i class="bi bi-graph-up"></i>
+            <span>Watch as connections form automatically</span>
+          </div>
+          <div class="tip-item">
+            <i class="bi bi-journal-text"></i>
+            <span>Add notes to remember key insights</span>
+          </div>
+        </div>
+        <button class="btn btn-primary" id="closeEmptyStateBtn">Got it!</button>
+      </div>
+    </div>
+
+    <!-- Info Tooltip -->
+    <div class="info-tooltip" id="infoTooltip" style="display: none;">
+      <div class="tooltip-content">
+        <h4 class="tooltip-title">How Similarity is Calculated</h4>
+        <p class="tooltip-text">
+          <strong>High Level:</strong> We use semantic embeddings to measure how related two pages are based on their content and context.
+        </p>
+        <p class="tooltip-text">
+          <strong>In Depth:</strong> Each page is converted into a high-dimensional vector using a transformer model. 
+          Similarity is computed using cosine similarity between these vectors, where 1.0 means identical content and 0.0 means completely unrelated.
+        </p>
+      </div>
+    </div>
+  </div>
+
+
+  
+  <script src="lib/idb.js"></script>
+  <script src="lib/embeddings.js"></script>
+  <script src="lib/pipeline.js"></script>
+  <script src="sidebar.js"></script>
+</body>
+</html>
